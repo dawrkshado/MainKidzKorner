@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DndContext, useDraggable, useDroppable, pointerWithin } from "@dnd-kit/core";
-import BG from "../../../../assets/Animals/Lesson4/Bg1.webp";
+import BG from "../../../../assets/Animals/Lesson4/bg1.webp";
 import Fish from "../../../../assets/Animals/Lesson4/Fish.webp";
 import Lion from "../../../../assets/Animals/Lesson4/Lion.webp";
 import Giraffe from "../../../../assets/Animals/Lesson4/Giraffe.webp";
@@ -14,10 +14,12 @@ import TwoStar from "../../../../assets/Done/TwoStar.webp";
 import ThreeStar from "../../../../assets/Done/ThreeStar.webp";
 import ReplayNBack from "../../../../components/ReplayNBack";
 import backgroundMusic from "../../../../assets/Sounds/background.mp3";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import applause from "../../../../assets/Sounds/applause.wav";
 import { useWithSound } from "../../../../components/useWithSound";
 import { useNavigate } from "react-router-dom";
+
+import SoundTutorial4 from "../../../../assets/videos/LiveTutorial1.mp4";  // ← tutorial video file path
 
 function Droppable({ id, placedShape, shape }) {
   const { isOver, setNodeRef } = useDroppable({ id });
@@ -29,7 +31,7 @@ function Droppable({ id, placedShape, shape }) {
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center justify-center h-100 w-100  2xl:h-150 2xl:w-150"
+      className="flex items-center justify-center h-100 w-100 2xl:h-150 2xl:w-150"
     >
       {placedShape ? placedShape : shape}
     </div>
@@ -72,6 +74,7 @@ function AnimalsLesson4Activity1() {
   const { playSound: playApplause, stopSound: stopApplause } = useWithSound(applause);
   const [dropped, setDropped] = useState([]);
   const [count, setCount] = useState(1);
+  const [showTutorial, setShowTutorial] = useState(true);  // ← tutorial overlay state
 
   const acceptedAnimals = ["monkey", "giraffe", "lion"];
 
@@ -80,7 +83,11 @@ function AnimalsLesson4Activity1() {
       const draggedId = event.active.id;
       const droppedId = event.over.id;
 
-      if (droppedId === "savanna" && acceptedAnimals.includes(draggedId) && !dropped.includes(draggedId)) {
+      if (
+        droppedId === "savanna" &&
+        acceptedAnimals.includes(draggedId) &&
+        !dropped.includes(draggedId)
+      ) {
         setDropped((prev) => [...prev, draggedId]);
       }
     }
@@ -89,6 +96,7 @@ function AnimalsLesson4Activity1() {
   const isGameFinished = dropped.length === 3;
 
   useEffect(() => {
+    if (showTutorial) return;  // don’t start background music until tutorial ends
     const bgSound = new Audio(backgroundMusic);
     bgSound.loop = true;
     bgSound.volume = 0.3;
@@ -101,7 +109,7 @@ function AnimalsLesson4Activity1() {
       bgSound.pause();
       bgSound.currentTime = 0;
     };
-  }, []);
+  }, [showTutorial]);
 
   useEffect(() => {
     let soundTimeout;
@@ -122,18 +130,22 @@ function AnimalsLesson4Activity1() {
   }, [isGameFinished, playApplause, stopApplause]);
 
   useEffect(() => {
-    if (isGameFinished) return;
+    if (isGameFinished || showTutorial) return;
 
     const interval = setInterval(() => {
       setCount((prev) => prev + 1);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isGameFinished]);
+  }, [isGameFinished, showTutorial]);
+
+  const handleSkipTutorial = () => setShowTutorial(false);
+  const handleTutorialEnd = () => setShowTutorial(false);
 
   const resetGame = () => {
     setDropped([]);
     setCount(0);
+    setShowTutorial(true);
   };
 
   const handleReplay = () => {
@@ -148,98 +160,181 @@ function AnimalsLesson4Activity1() {
 
   return (
     <>
-      <div
-        className="flex h-[100vh] w-[100vw] [&>*]:flex absolute font-[coiny] overflow-hidden bg-cover bg-no-repeat"
-        style={{ backgroundImage: `url(${BG})` }}
-      >
-        <div className="absolute top-0 right-0 text-white">Your Time: {count}</div>
+      {/* Tutorial Video Popup */}
+      <AnimatePresence>
+        {showTutorial && (
+          <motion.div
+            key="tutorialPopup"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 bg-black/80 flex justify-center items-center z-50"
+          >
+            <div className="relative w-[80%] md:w-[60%]">
+              <video
+                src={SoundTutorial4}
+                autoPlay
+                onEnded={handleTutorialEnd}
+                playsInline
+                className="w-full rounded-2xl shadow-lg border-4 border-gray-200"
+              />
+              <button
+                onClick={handleSkipTutorial}
+                className="absolute top-4 right-4 bg-white/80 text-black font-semibold px-4 py-1 rounded-lg shadow hover:bg-white transition"
+              >
+                Skip
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-        <DndContext onDragEnd={handleDragEnd} collisionDetection={pointerWithin}>
-          {/* Droppables */}
-          <div className="absolute top-0 items-center justify-center w-[100vw] h-[40vw]">
-            <Droppable
-              id="savanna"
-              shape={<img src={Dog} alt="Drop zone" className="w-[100%] h-[100%] object-contain" />}
-              placedShape={
-                dropped.length > 0 && (
-                  <Draggable
-                    id="placed"
-                    shape={<img src={Dog} alt="Dropped animals" className="h-[30%]" />}
-                    disabled={true}
+      {/* Main Game UI */}
+      {!showTutorial && (
+        <div
+          className="flex h-[100vh] w-[100vw] [&>*]:flex absolute font-[coiny] overflow-hidden bg-cover bg-no-repeat"
+          style={{ backgroundImage: `url(${BG})` }}
+        >
+          <div className="absolute top-0 right-0 text-white">Your Time: {count}</div>
+
+          <DndContext onDragEnd={handleDragEnd} collisionDetection={pointerWithin}>
+            {/* Droppables */}
+            <div className="absolute top-0 items-center justify-center w-[100vw] h-[40vw]">
+              <Droppable
+                id="savanna"
+                shape={
+                  <img src={Dog} alt="Drop zone" className="w-[100%] h-[100%] object-contain" />
+                }
+                placedShape={
+                  dropped.length > 0 && (
+                    <Draggable
+                      id="placed"
+                      shape={<img src={Dog} alt="Dropped animals" className="h-[30%]" />}
+                      disabled={true}
+                    />
+                  )
+                }
+              />
+            </div>
+
+            {/* Draggables */}
+            <div className="flex absolute gap-4 w-[100%] justify-center z-10 bottom-8 p-4">
+              {!dropped.includes("monkey") && (
+                <Draggable
+                  id="monkey"
+                  shape={
+                    <img
+                      src={Monkey}
+                      alt="Monkey"
+                      className="h-32 2xl:h-65 w-auto object-contain"
+                    />
+                  }
+                />
+              )}
+              <Draggable
+                id="fish"
+                shape={<img src={Fish} alt="Fish" className="h-32 2xl:h-65 w-auto object-contain" />}
+              />
+              {!dropped.includes("giraffe") && (
+                <Draggable
+                  id="giraffe"
+                  shape={
+                    <img
+                      src={Giraffe}
+                      alt="Giraffe"
+                      className="h-32 2xl:h-65 w-auto object-contain"
+                    />
+                  }
+                />
+              )}
+              <Draggable
+                id="polarbear"
+                shape={
+                  <img
+                    src={PolarBear}
+                    alt="PolarBear"
+                    className="h-32 2xl:h-65 w-auto object-contain"
                   />
-                )
-              }
-            />
-          </div>
+                }
+              />
+              {!dropped.includes("lion") && (
+                <Draggable
+                  id="lion"
+                  shape={
+                    <img
+                      src={Lion}
+                      alt="Lion"
+                      className="h-32 2xl:h-65 w-auto object-contain"
+                    />
+                  }
+                />
+              )}
+              <Draggable
+                id="seal"
+                shape={
+                  <img
+                    src={Seal}
+                    alt="Seal"
+                    className="h-32 2xl:h-65 w-auto object-contain"
+                  />
+                }
+              />
+            </div>
 
-          {/* Draggables */}
-         <div className="flex absolute gap-4 w-[100%] justify-center z-10 bottom-8 p-4">
- 
-  {!dropped.includes("monkey") && (
-    <Draggable id="monkey" shape={<img src={Monkey} alt="Monkey" className="h-32 2xl:h-65 w-auto object-contain" />} />
-  )}
-   <Draggable id="fish" shape={<img src={Fish} alt="Fish" className="h-32 2xl:h-65 w-auto object-contain" />} />
-  {!dropped.includes("giraffe") && (
-    <Draggable id="giraffe" shape={<img src={Giraffe} alt="Giraffe" className="h-32 2xl:h-65 w-auto object-contain" />} />
-  )}
-   <Draggable id="polarbear" shape={<img src={PolarBear} alt="PolarBear" className="h-32 2xl:h-65 w-auto object-contain" />} />
-  {!dropped.includes("lion") && (
-    <Draggable id="lion" shape={<img src={Lion} alt="Lion" className="h-32 2xl:h-65 w-auto object-contain" />} />
-  )}
- 
-  <Draggable id="seal" shape={<img src={Seal} alt="Seal" className="h-32  2xl:h-65 w-auto object-contain" />} />
-</div>
-
-          {/* Results */}
-          {isGameFinished && count <= 15 && (
-            <div className="absolute inset-0 flex items-center h-full w-full justify-center bg-opacity-50 z-20">
-              <motion.img
-                src={ThreeStar}
-                alt="Game Completed!"
-                className="h-[300px]"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              />
-              <div className="absolute bottom-[20%]">
-                <ReplayNBack />
+            {/* Results */}
+            {isGameFinished && count <= 15 && (
+              <div className="absolute inset-0 flex items-center h-full w-full justify-center bg-opacity-50 z-20">
+                <motion.img
+                  src={ThreeStar}
+                  alt="Game Completed!"
+                  className="h-[300px]"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+                <div className="absolute bottom-[20%]">
+                  <ReplayNBack onReplay={handleReplay} onBack={handleBack} />
+                </div>
               </div>
-            </div>
-          )}
-          {isGameFinished && count <= 20 && count > 15 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-opacity-50 z-20">
-              <motion.img
-                src={TwoStar}
-                alt="Game Completed!"
-                className="h-[300px]"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              />
-              <div className="absolute bottom-[20%]">
-                <ReplayNBack />
+            )}
+            {isGameFinished && count <= 20 && count > 15 && (
+              <div className="absolute inset-0 flex items-center justify-center bg-opacity-50 z-20">
+                <motion.img
+                  src={TwoStar}
+                  alt="Game Completed!"
+                  className="h-[300px]"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+                <div className="absolute bottom-[20%]">
+                  <ReplayNBack onReplay={handleReplay} onBack={handleBack} />
+                </div>
               </div>
-            </div>
-          )}
-          {isGameFinished && count > 20 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-opacity-50 z-20">
-              <motion.img
-                src={OneStar}
-                alt="Game Completed!"
-                className="h-[300px]"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              />
-              <div className="absolute bottom-[20%]">
-                <ReplayNBack />
+            )}
+            {isGameFinished && count > 20 && (
+              <div className="absolute inset-0 flex items-center justify-center bg-opacity-50 z-20">
+                <motion.img
+                  src={OneStar}
+                  alt="Game Completed!"
+                  className="h-[300px]"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+                <div className="absolute bottom-[20%]">
+                  <ReplayNBack onReplay={handleReplay} onBack={handleBack} />
+                </div>
               </div>
-            </div>
-          )}
-        </DndContext>
-      </div>
+            )}
+          </DndContext>
+        </div>
+      )}
     </>
   );
 }
 
 export default AnimalsLesson4Activity1;
+
+

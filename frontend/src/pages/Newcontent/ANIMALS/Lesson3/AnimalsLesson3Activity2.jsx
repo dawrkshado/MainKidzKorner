@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// src/pages/Newcontent/ANIMALS/Lesson3/AnimalsLessonActivity2.jsx
+import React, { useState, useEffect, useRef } from "react";
 import { DndContext, useDraggable, useDroppable, pointerWithin } from "@dnd-kit/core";
 import { motion, AnimatePresence } from "framer-motion";
 import BG from "../../../../assets/Animals/Lesson3/bg2.webp";
@@ -26,6 +27,11 @@ import { useNavigate } from "react-router-dom";
 import KittenDialogue from "../../../../assets/Animals/Lesson3/KittenDialogue.webp";
 import PuppyDialogue from "../../../../assets/Animals/Lesson3/PuppyDialogue.webp";
 import ChickDialogue from "../../../../assets/Animals/Lesson3/ChickDialogue.webp";
+
+// ✅ Baby animal sounds
+import babydog from "../../../../assets/Animals/ExerciseSound/babydog.mp3";
+import babycat from "../../../../assets/Animals/ExerciseSound/babycat.mp3";
+import babychicken from "../../../../assets/Animals/ExerciseSound/babychicken.mp3";
 
 function Droppable({ id, placedShape, shape }) {
   const { isOver, setNodeRef } = useDroppable({ id });
@@ -61,10 +67,29 @@ function AnimalsLessonActivity2() {
   const navigate = useNavigate();
   const { playSound: playApplause, stopSound: stopApplause } = useWithSound(applause);
   const [dropped, setDropped] = useState({});
-  const [currentRound, setCurrentRound] = useState(1); // ✅ for fade transition
+  const [currentRound, setCurrentRound] = useState(1);
   const [count, setCount] = useState(1);
 
+  // ✅ One ref for all baby sounds
+  const babySoundRef = useRef(null);
+
+  function stopBabySound() {
+    if (babySoundRef.current) {
+      babySoundRef.current.pause();
+      babySoundRef.current.currentTime = 0;
+      babySoundRef.current = null;
+    }
+  }
+
+  function handleDragStart() {
+    // Stop baby sound immediately when dragging starts
+    stopBabySound();
+  }
+
   function handleDragEnd(event) {
+    // Always stop current sound when drop happens
+    stopBabySound();
+
     if (event.over) {
       const draggedId = event.active.id;
       const droppedId = event.over.id;
@@ -72,14 +97,22 @@ function AnimalsLessonActivity2() {
       if (draggedId === droppedId) {
         setDropped((prev) => ({ ...prev, [draggedId]: droppedId }));
 
-        // ✅ round progression
-       if (draggedId === "dog") {
-  setTimeout(() => setCurrentRound(2), 1000); // wait 1s before next round
-}
-if (draggedId === "cat") {
-  setTimeout(() => setCurrentRound(3), 1000);
-}
+        // ✅ Play correct sound depending on animal
+        let soundToPlay = null;
+        if (draggedId === "dog") soundToPlay = babydog;
+        if (draggedId === "cat") soundToPlay = babycat;
+        if (draggedId === "chicken") soundToPlay = babychicken;
 
+        if (soundToPlay) {
+          const audio = new Audio(soundToPlay);
+          babySoundRef.current = audio;
+          audio.volume = 0.9;
+          audio.play().catch((err) => console.warn("Sound play blocked:", err));
+        }
+
+        // ✅ Round transitions
+        if (draggedId === "dog") setTimeout(() => setCurrentRound(2), 1000);
+        if (draggedId === "cat") setTimeout(() => setCurrentRound(3), 1000);
       }
     }
   }
@@ -120,6 +153,7 @@ if (draggedId === "cat") {
     setDropped({});
     setCount(0);
     setCurrentRound(1);
+    stopBabySound();
   };
 
   const handleReplay = () => {
@@ -140,105 +174,79 @@ if (draggedId === "cat") {
       >
         <div className="absolute top-0 right-0 text-white">Your Time: {count}</div>
 
-        <DndContext onDragEnd={handleDragEnd} collisionDetection={pointerWithin}>
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={pointerWithin}>
           <AnimatePresence mode="wait">
+            {/* 🐶 Round 1: Dog */}
             {currentRound === 1 && (
-              <motion.div
-                key="round1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                {/* Round 1: Dog */}
+              <motion.div key="round1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
                 <div className="absolute top-[45%] w-[100vw] flex justify-center gap-20">
                   <Droppable id="cat" shape={<img src={Cat} className="w-[40%]" />} />
                   <Droppable id="cow" shape={<img src={Cow} className="w-[60%]" />} />
                   <Droppable
                     id="dog"
                     shape={<img src={Dog} className="w-[50%]" />}
-                    placedShape={
-                    dropped["dog"] && <img src={DogDone} className="w-[100%]" alt="dog done" />
-}
+                    placedShape={dropped["dog"] && <img src={DogDone} className="w-[100%]" alt="dog done" />}
                   />
                 </div>
 
-                <div className="flex absolute gap-30 mt-10 w-[8%]  right-[45%] top-[25%] 2xl:right-[45%] 2xl:top-[32%] justify-center  z-10 ">
-                  {!dropped["dog"] && (
-                    <Draggable id="dog" shape={<img src={Puppy} alt="dog" className="h-[100%]" />} />
-                  )}
+                <div className="flex absolute gap-30 mt-10 w-[8%] right-[45%] top-[25%] justify-center z-10">
+                  {!dropped["dog"] && <Draggable id="dog" shape={<img src={Puppy} alt="dog" className="h-[100%]" />} />}
                 </div>
 
-                <div className="absolute h-[25%] right-[33%] top-[10%] 2xl:right-[33%] 2xl:top-[13%] "><img src={PuppyDialogue} alt="dialogue for a puppy that says i am a puppy who is my mama?" className="h-[100%] "/></div>
-                
+                <div className="absolute h-[25%] right-[33%] top-[10%]">
+                  <img src={PuppyDialogue} alt="puppy dialogue" className="h-[100%]" />
+                </div>
               </motion.div>
             )}
 
+            {/* 🐱 Round 2: Cat */}
             {currentRound === 2 && (
-              <motion.div
-                key="round2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                {/* Round 2: Cat */}
+              <motion.div key="round2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
                 <div className="absolute top-[45%] w-[100vw] flex justify-center gap-20">
-                  
                   <Droppable
                     id="cat"
                     shape={<img src={Cat} className="w-[40%]" />}
-                    placedShape={
-                      dropped["cat"] && (
-                        <Draggable id="cat" shape={<img src={CatDone} className="h-[100%]" />} disabled={true} />
-                      )
-                    }
+                    placedShape={dropped["cat"] && <img src={CatDone} className="w-[100%]" alt="cat done" />}
                   />
                   <Droppable id="cow" shape={<img src={Cow} className="w-[60%]" />} />
                   <Droppable id="sheep" shape={<img src={Sheep} className="w-[60%]" />} />
                 </div>
-                <div className="flex absolute gap-30 mt-10 w-[8%]  right-[45%] top-[26%] 2xl:right-[45%] 2xl:top-[35%] justify-center  z-10 ">
-                  {!dropped["cat"] && (
-                    <Draggable id="cat" shape={<img src={Kitten} alt="cat" className="h-[100%]" />} />
-                  )}
+
+                <div className="flex absolute gap-30 mt-10 w-[8%] right-[45%] top-[26%] justify-center z-10">
+                  {!dropped["cat"] && <Draggable id="cat" shape={<img src={Kitten} alt="cat" className="h-[100%]" />} />}
                 </div>
-                 <div className="absolute h-[25%] right-[33%] top-[10%] 2xl:right-[33%] 2xl:top-[13%] "><img src={KittenDialogue} alt="dialogue for kitten that says i am a kitten who is my mama?" className="h-[100%] "/></div>
+
+                <div className="absolute h-[25%] right-[33%] top-[10%]">
+                  <img src={KittenDialogue} alt="kitten dialogue" className="h-[100%]" />
+                </div>
               </motion.div>
             )}
 
+            {/* 🐥 Round 3: Chicken */}
             {currentRound === 3 && !isGameFinished && (
-              <motion.div
-                key="round3"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                {/* Round 3: Chicken */}
+              <motion.div key="round3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
                 <div className="absolute top-[45%] w-[100vw] flex justify-center gap-20">
                   <Droppable id="duck" shape={<img src={Duck} className="w-[40%]" />} />
                   <Droppable
                     id="chicken"
                     shape={<img src={Chicken} className="w-[40%]" />}
-                    placedShape={
-                      dropped["chicken"] && (
-                        <Draggable id="chicken" shape={<img src={ChickenDone} className="h-[90%]" />} disabled={true} />
-                      )
-                    }
+                    placedShape={dropped["chicken"] && <img src={ChickenDone} className="w-[100%]" alt="chicken done" />}
                   />
                   <Droppable id="sheep" shape={<img src={Sheep} className="w-[40%]" />} />
                 </div>
-                <div className="flex absolute gap-30 mt-10 w-[8%]  right-[45%] top-[25%] 2xl:right-[45%] 2xl:top-[32%] justify-center  z-10 ">
-                  {!dropped["chicken"] && (
-                    <Draggable id="chicken" shape={<img src={Chick} alt="chick" className="h-[90%]" />} />
-                  )}
+
+                <div className="flex absolute gap-30 mt-10 w-[8%] right-[45%] top-[25%] justify-center z-10">
+                  {!dropped["chicken"] && <Draggable id="chicken" shape={<img src={Chick} alt="chick" className="h-[90%]" />} />}
                 </div>
-                <div className="absolute h-[25%] right-[33%] top-[10%] 2xl:right-[33%] 2xl:top-[13%] "><img src={ChickDialogue} alt="dialogue for a chick that says i am a chick who is my mama?" className="h-[100%] "/></div>
+
+                <div className="absolute h-[25%] right-[33%] top-[10%]">
+                  <img src={ChickDialogue} alt="chick dialogue" className="h-[100%]" />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Results */}
+          {/* 🌟 Result */}
           {isGameFinished && (
             <div className="absolute inset-0 flex items-center justify-center bg-opacity-50 z-20">
               <motion.img
@@ -260,3 +268,5 @@ if (draggedId === "cat") {
 }
 
 export default AnimalsLessonActivity2;
+
+

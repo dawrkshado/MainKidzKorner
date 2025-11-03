@@ -91,34 +91,45 @@ function ParentsChildRegistration() {
             <div className="m-3">
               <label className="block mb-1">First Name:</label>
               <input
-                required
-                type="text"
-                value={firstName}
-                onChange={
-                  (e) => {
-                    const value = e.target.value;
-                    const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
-                    setFirstName(capitalized);
-                  }
+  required
+  type="text"
+  value={firstName}
+  onChange={(e) => {
+    const value = e.target.value;
 
-                }
-                className="w-full p-2 rounded-md border capitalize"
-              />
+    // Allow only letters and spaces
+    const onlyLetters = value.replace(/[^a-zA-Z\s]/g, "");
+
+    // Capitalize first letter
+    const capitalized = onlyLetters.charAt(0).toUpperCase() + onlyLetters.slice(1);
+
+    setFirstName(capitalized);
+  }}
+  className="w-full p-2 rounded-md border capitalize"
+/>
+
             </div>
 
             <div className="m-3">
               <label className="block mb-1">Last Name:</label>
-              <input
-                required
-                type="text"
-                value={lastName}
-                onChange={(e) => {
-                const value = e.target.value;
-                const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
-                setLastName(capitalized);
-                }}
-                className="w-full p-2 rounded-md border capitalize"
-              />
+             <input
+  required
+  type="text"
+  value={lastName}
+  onChange={(e) => {
+    const value = e.target.value;
+
+    // Allow only letters and spaces
+    const onlyLetters = value.replace(/[^a-zA-Z\s]/g, "");
+
+    // Capitalize first letter
+    const capitalized = onlyLetters.charAt(0).toUpperCase() + onlyLetters.slice(1);
+
+    setLastName(capitalized);
+  }}
+  className="w-full p-2 rounded-md border capitalize"
+/>
+
             </div>
 
 
