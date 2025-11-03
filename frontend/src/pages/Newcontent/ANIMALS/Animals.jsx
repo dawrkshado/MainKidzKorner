@@ -5,8 +5,21 @@ import live from "../../../assets/Animals/live.webp";
 import move from "../../../assets/Animals/move.webp";
 import pet from "../../../assets/Animals/pet.webp";
 import sound from "../../../assets/Animals/sound.webp";
+import { useEffect,useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Animals() {
+
+  const [isActivity2Done, setIsActivity1Done] = useState(false);
+  const [finished,setFinished] = useState()
+  
+  const navigate = useNavigate()
+  useEffect(() => {
+    const activity1Status = localStorage.getItem("lesson1Activity2Done") === "true";
+    setIsActivity1Done(activity1Status);
+  }, []);
+  
+
   return (
     <>
       <Helmet>
@@ -47,13 +60,23 @@ function Animals() {
             </li>
 
             <li>
-              <Link to="/lessons/animals/lesson2">
+         
                 <img
                   src={move}
                   alt="Buttons for Animals move"
-                  className="absolute left-[45%] top-[20%] w-auto h-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
+                        onClick={() => {
+    if (isActivity2Done) {
+      navigate("/lessons/animals/lesson2");
+    }
+  }}
+  className={`w-auto transition-transform duration-300 ${
+    isActivity2Done
+      ? "hover:scale-105 cursor-pointer absolute left-[45%] top-[20%] w-auto h-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
+      : "opacity-50 cursor-not-allowed absolute absolute left-[45%] top-[20%] w-auto h-auto  "
+  }`}
+
                 />
-              </Link>
+ 
             </li>
 
             <li>

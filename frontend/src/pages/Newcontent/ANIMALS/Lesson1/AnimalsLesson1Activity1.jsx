@@ -70,13 +70,6 @@ function Draggable({ id, disabled = false, shape }) {
   );
 }
 
-const PROGRESS_KEY = "alphabetMediumProgress";
-
-function saveProgress(level) {
-  const progress = JSON.parse(localStorage.getItem(PROGRESS_KEY)) || { level1: false, level2: false };
-  progress[level] = true;
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-}
 
 function AnimalsLessonActivity1() {
   const navigate = useNavigate();
@@ -140,17 +133,25 @@ function AnimalsLessonActivity1() {
   }, [showTutorial]);
 
   useEffect(() => {
-    let soundTimeout;
-    if (isGameFinished) {
-      playApplause();
-      saveProgress("level1");
-      soundTimeout = setTimeout(() => stopApplause(), 8000);
-    }
-    return () => {
-      clearTimeout(soundTimeout);
-      stopApplause();
-    };
-  }, [isGameFinished, playApplause, stopApplause]);
+  let soundTimeout;
+  if (isGameFinished) {
+    playApplause();
+
+    soundTimeout = setTimeout(() => stopApplause(), 8000);
+  }
+  return () => {
+    clearTimeout(soundTimeout);
+    stopApplause();
+  };
+}, [isGameFinished, playApplause, stopApplause]);
+
+
+useEffect(() => {
+  if (isGameFinished) {
+    localStorage.setItem("lesson1Activity1Done", "true");
+  }
+}, [isGameFinished]);
+
 
   useEffect(() => {
     if (showTutorial) return;  // don’t count time during tutorial

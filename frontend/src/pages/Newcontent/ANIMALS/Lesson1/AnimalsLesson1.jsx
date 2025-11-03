@@ -26,6 +26,15 @@ function AnimalLesson1() {
   const videoRef = useRef(null); // ✅ ref for main video
   const navigate = useNavigate();
 
+  const [isActivity1Done, setIsActivity1Done] = useState(false);
+
+useEffect(() => {
+  const activity1Status = localStorage.getItem("lesson1Activity1Done") === "true";
+  setIsActivity1Done(activity1Status);
+}, []);
+
+
+
   // 🎵 Stop currently playing sound
   const stopSound = () => {
     const audio = currentAudioRef.current;
@@ -81,6 +90,9 @@ const playSound = (soundFile) => {
       videoRef.current.play();
     }
   };
+  
+
+ 
 
   const handleNavigation = (path) => {
     stopSound();
@@ -162,6 +174,7 @@ const playSound = (soundFile) => {
 
     {/* Animal sounds container */}
     <div className="relative w-full h-[500px] mt-16">
+  
       <img
         src={dogsound}
         alt="Dog"
@@ -199,11 +212,15 @@ const playSound = (soundFile) => {
 
 
       {/* 🟣 Activities Popup */}
+
+      
       {clicked && clickedID === "Activities" && (
+        
         <div
           className="fixed inset-0 z-50 flex flex-col justify-center items-center gap-10 bg-cover bg-center"
           style={{ backgroundImage: `url("/Bg/activitybg.webp")` }}
         >
+    
           <div
             onClick={handleExit}
             className="bg-red-600 absolute right-[3%] top-[3%] h-10 w-10 flex justify-center items-center text-white rounded-full cursor-pointer"
@@ -221,11 +238,17 @@ const playSound = (soundFile) => {
           <img
             src={act2sound}
             alt="Activity 2"
-            onClick={() =>
-              handleNavigation("/lessons/animals/lesson1/activity2")
-            }
-            className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
-          />
+           onClick={() => {
+    if (isActivity1Done) {
+      handleNavigation("/lessons/animals/lesson1/activity2");
+    }
+  }}
+  className={`w-auto transition-transform duration-300 ${
+    isActivity1Done
+      ? "hover:scale-105 cursor-pointer"
+      : "opacity-50 cursor-not-allowed"
+  }`}
+/>
         </div>
       )}
     </>
