@@ -17,7 +17,9 @@ import cowmoo from "../../../../assets/Sounds/cowmoo.mp3";
 import duckquack from "../../../../assets/Sounds/duckquack.mp3";
 import pigoink from "../../../../assets/Sounds/pigoink.mp3";
 
+
 import SoundVideo from "../../../../assets/Animals/ExerciseVideo/Animal Sounds Lesson 1.mp4";
+import api from "../../../../api";
 
 function AnimalLesson1() {
   const [clicked, setClicked] = useState(false);
@@ -25,13 +27,35 @@ function AnimalLesson1() {
   const currentAudioRef = useRef(null);
   const videoRef = useRef(null); // ✅ ref for main video
   const navigate = useNavigate();
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id;
+  
+
+  const [loadingProgress, setLoadingProgress] = useState(true); // optional: show loading spinner
 
   const [isActivity1Done, setIsActivity1Done] = useState(false);
 
 useEffect(() => {
-  const activity1Status = localStorage.getItem("lesson1Activity1Done") === "true";
-  setIsActivity1Done(activity1Status);
-}, []);
+  const checkActivity1Completion = async () => {
+    try {
+      const res = await api.get(`/api/time_completions/?child=${childId}&lesson=1&activity=1`);
+      // Assuming your API returns an array of completions
+      if (res.data && res.data.length > 0) {
+        setIsActivity1Done(true);
+      }
+    } catch (err) {
+      console.error("Error checking activity 1 completion:", err);
+    } finally {
+      setLoadingProgress(false); // hide spinner if you have one
+    }
+  };
+
+  if (childId) {
+    checkActivity1Completion();
+  }
+}, [childId]);
+
+
 
 
 
@@ -111,6 +135,13 @@ const playSound = (soundFile) => {
     return () => stopSound();
   }, []);
 
+
+    const handleActivity2Click = () => {
+    if (isActivity1Done) {
+      navigate("/lessons/animals/lesson1/activity2");
+    }
+  };
+
   return (
     <>
       {/* 🟢 Main Page Section */}
@@ -137,18 +168,18 @@ const playSound = (soundFile) => {
         {/* 🟡 Buttons */}
         <div
           onClick={() => handleClick("Exercises")}
-          className="hover:cursor-pointer absolute left-[61%] top-[15%] motion-preset-pulse-sm motion-duration-2000"
+          className="hover:cursor-pointer absolute left-[61%] top-[15%]"
         >
           <img
             src={exercisesound}
             alt="Exercises Button"
-            className="w-auto h-auto hover:scale-105 transition-transform duration-300 "
+            className="w-auto h-auto hover:scale-105 transition-transform duration-300"
           />
         </div>
 
         <div
           onClick={() => handleClick("Activities")}
-          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%] motion-preset-pulse-sm motion-duration-2000"
+          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%]"
         >
           <img
             src={activitysound}
@@ -235,20 +266,17 @@ const playSound = (soundFile) => {
             }
             className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
           />
-          <img
-            src={act2sound}
-            alt="Activity 2"
-           onClick={() => {
-    if (isActivity1Done) {
-      handleNavigation("/lessons/animals/lesson1/activity2");
-    }
-  }}
+        <img
+  src={act2sound}
+  alt="Activity 2"
+  onClick={handleActivity2Click}
   className={`w-auto transition-transform duration-300 ${
     isActivity1Done
       ? "hover:scale-105 cursor-pointer"
       : "opacity-50 cursor-not-allowed"
   }`}
 />
+
         </div>
       )}
     </>

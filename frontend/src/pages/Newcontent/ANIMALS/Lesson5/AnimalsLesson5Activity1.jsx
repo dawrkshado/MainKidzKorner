@@ -157,7 +157,7 @@ function AnimalsLesson5Activity1() {
     const saveRecord = async () => {
       const payload = {
         child_id: childId,
-        game: "Lesson4 Activity2",
+        game: "Lesson5 Activity1",
         level: 1,
         time: count
       };

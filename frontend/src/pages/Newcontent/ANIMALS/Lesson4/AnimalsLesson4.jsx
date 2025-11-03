@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import act1live from "../../../../assets/Animals/act1live.webp";
@@ -18,7 +18,7 @@ import desertbg from "../../../../assets/Animals/ExerciseHabitats/desertbg.webp"
 import forestbg from "../../../../assets/Animals/ExerciseHabitats/forestbg.webp";
 import pondbg from "../../../../assets/Animals/ExerciseHabitats/pondbg.webp";
 import savannabg from "../../../../assets/Animals/ExerciseHabitats/savannabg.webp";
-
+import api from "../../../../api";
 import animalhabitatvid from "../../../../assets/Animals/ExerciseVideo/animalhabitatvid.mp4";
 
 function AnimalLesson4() {
@@ -26,6 +26,33 @@ function AnimalLesson4() {
   const [clickedID, setClickedID] = useState(null);
   const navigate = useNavigate();
   const videoRef = useRef(null);
+
+  const [loadingProgress, setLoadingProgress] = useState(true); // optional: show loading spinner
+  const [isActivity1Done, setIsActivity1Done] = useState(false);
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id;
+
+  useEffect(() => {
+  const checkLesson4Activity1 = async () => {
+    try {
+      const res = await api.get(`/api/time_completions/?child=${childId}`);
+      const completions = res.data.results ? res.data.results : res.data;
+
+      const hasActivity1 = completions.some(
+        (item) => item.game_level?.game_name === "Lesson4 Activity1"
+      );
+
+      setIsActivity1Done(hasActivity1);
+    } catch (err) {
+      console.error("Error checking Lesson4 Activity1 completion:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (childId) checkLesson4Activity1();
+}, [childId]);
+
 
   function stopVideo() {
     if (videoRef.current) videoRef.current.pause();
@@ -71,6 +98,16 @@ function AnimalLesson4() {
     justifyContent: "center",
     alignItems: "center",
   };
+
+    const handleActivity2Click = () => {
+    if (!isActivity1Done) {
+      alert("Please finish Activity 1 first!");
+      return;
+    }
+    navigate("/lessons/animals/lesson4/activity2");
+  };
+
+
 
   return (
     <>
@@ -159,14 +196,15 @@ function AnimalLesson4() {
                 className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
               />
               <img
-                src={act2live}
-                alt="Activity 2"
-                onClick={() => {
-                  stopVideo(); // stop video before navigating
-                  navigate("/lessons/animals/lesson4/activity2");
-                }}
-                className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
-              />
+                                      src={act2live}
+                                      alt="Activity 2"
+                                      onClick={handleActivity2Click}
+                                      className={`w-auto transition-transform duration-300 ${
+                                        isActivity1Done
+                                          ? "hover:scale-105 cursor-pointer"
+                                          : "opacity-50 cursor-not-allowed"
+                                      }`}
+                                    />
             </div>
           )}
         </div>

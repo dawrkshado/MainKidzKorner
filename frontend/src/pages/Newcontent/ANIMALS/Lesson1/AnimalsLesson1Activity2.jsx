@@ -45,8 +45,6 @@ function AnimalsLesson1Activity2() {
   const navigate = useNavigate();
   const { playSound: playApplause, stopSound: stopApplause } = useWithSound(applause);
 
-    const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
-  const childId = selectedChild?.id; // this is the child ID you need
 
 
   // 🔊 add animal sounds
@@ -64,6 +62,8 @@ function AnimalsLesson1Activity2() {
   const handleVideoEnd = () => setShowTutorial(false);
   const handleSkip = () => setShowTutorial(false);
   const currentRound = ROUNDS[roundIndex];
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
 
 
   // ✅ play sound based on current round
@@ -132,6 +132,8 @@ function AnimalsLesson1Activity2() {
     saveRecord();
   }
 }, [isGameFinished, childId, count]);
+
+
 
 
   return (<>

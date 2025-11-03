@@ -77,11 +77,11 @@ function AnimalsLessonActivity1() {
   const [dropped, setDropped] = useState({});
   const [count, setCount] = useState(0);
   
+
+
+  
   const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
   const childId = selectedChild?.id; // this is the child ID you need
-
-
-
 
 
   // Tutorial state
@@ -153,11 +153,6 @@ function AnimalsLessonActivity1() {
 }, [isGameFinished, playApplause, stopApplause]);
 
 
-useEffect(() => {
-  if (isGameFinished) {
-    localStorage.setItem("lesson1Activity1Done", "true");
-  }
-}, [isGameFinished]);
 
 
   useEffect(() => {

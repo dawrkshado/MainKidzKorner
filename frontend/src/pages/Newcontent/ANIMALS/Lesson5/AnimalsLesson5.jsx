@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Buttons & background images
@@ -15,6 +15,7 @@ import wildBg from "../../../../assets/Animals/ExercisePet/wildanimals.webp";
 
 // ✅ Fixed the video import path (4 levels up)
 import animalpetvid from "../../../../assets/Animals/ExerciseVideo/animalpetvid.mp4";
+import api from "../../../../api";
 
 function AnimalLesson5() {
   const [clicked, setClicked] = useState();
@@ -22,6 +23,33 @@ function AnimalLesson5() {
   const [zone, setZone] = useState(null);
   const navigate = useNavigate();
   const videoRef = useRef(null);
+   const [isActivity1Done, setIsActivity1Done] = useState(false);
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id;
+  
+  const [loadingProgress, setLoading] = useState(true); // optional: show loading spinner
+
+  useEffect(() => {
+  const checkLesson5Activity1 = async () => {
+    try {
+      const res = await api.get(`/api/time_completions/?child=${childId}`);
+      const completions = res.data.results ? res.data.results : res.data;
+
+      const hasActivity1 = completions.some(
+        (item) => item.game_level?.game_name === "Lesson5 Activity1"
+      );
+
+      setIsActivity1Done(hasActivity1);
+    } catch (err) {
+      console.error("Error checking Lesson5 Activity1 completion:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (childId) checkLesson5Activity1();
+}, [childId]);
+  
 
  const handleClick = (button) => {
     setZone(null)
@@ -44,6 +72,15 @@ function AnimalLesson5() {
       videoRef.current.play();
     }
   };
+
+    const handleActivity2Click = () => {
+    if (!isActivity1Done) {
+      alert("Please finish Activity 1 first!");
+      return;
+    }
+    navigate("/lessons/animals/lesson5/activity2");
+  };
+
 
   return (
     <>
@@ -148,12 +185,16 @@ function AnimalLesson5() {
             onClick={() => navigate("/lessons/animals/lesson5/activity1")}
             className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
           />
-          <img
-            src={act2pet}
-            alt="Activity 2"
-            onClick={() => navigate("/lessons/animals/lesson5/activity2")}
-            className="w-auto hover:scale-105 transition-transform duration-300 cursor-pointer"
-          />
+           <img
+                                                src={act2pet}
+                                                alt="Activity 2"
+                                                onClick={handleActivity2Click}
+                                                className={`w-auto transition-transform duration-300 ${
+                                                  isActivity1Done
+                                                    ? "hover:scale-105 cursor-pointer"
+                                                    : "opacity-50 cursor-not-allowed"
+                                                }`}
+                                              />
         </div>
       )}
     </>
