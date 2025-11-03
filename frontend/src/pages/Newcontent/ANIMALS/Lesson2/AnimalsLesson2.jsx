@@ -93,19 +93,19 @@ function AnimalLesson2() {
         {/* EXERCISE BUTTON */}
         <div
           onClick={() => handleClick("Exercises")}
-          className="hover:cursor-pointer absolute left-[61%] top-[15%]"
+          className="hover:cursor-pointer absolute left-[61%] top-[15%] motion-preset-pulse-sm motion-duration-2000"
         >
           <img
             src={exercisemove}
             alt="Exercises Button"
-            className="w-auto h-auto hover:scale-105 transition-transform duration-300"
+            className="w-auto h-auto hover:scale-105 transition-transform duration-300 "
           />
         </div>
 
         {/* ACTIVITIES BUTTON */}
         <div
           onClick={() => handleClick("Activities")}
-          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%]"
+          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%] motion-preset-pulse-sm motion-duration-2000"
         >
           <img
             src={activitymove}

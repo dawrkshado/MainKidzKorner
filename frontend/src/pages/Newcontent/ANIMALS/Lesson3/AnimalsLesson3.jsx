@@ -69,7 +69,7 @@ function AnimalLesson3() {
         />
 
         {/* ✅ Video Section */}
-        <div className="absolute top-[10%] left-[30%] transform -translate-x-1/2 w-[48%]">
+        <div className="absolute top-[10%] left-[30%] transform -translate-x-1/2 w-[48%] ">
           <video
             ref={videoRef}
             src={animalbabyvid}
@@ -83,7 +83,7 @@ function AnimalLesson3() {
         {/* Exercise Button */}
         <div
           onClick={() => handleClick("Exercises")}
-          className="hover:cursor-pointer absolute left-[61%] top-[15%]"
+          className="hover:cursor-pointer absolute left-[61%] top-[15%] motion-preset-pulse-sm motion-duration-2000"
         >
           <img
             src={exercisebaby}
@@ -95,7 +95,7 @@ function AnimalLesson3() {
         {/* Activity Button */}
         <div
           onClick={() => handleClick("Activities")}
-          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%]"
+          className="hover:cursor-pointer absolute w-auto left-[60%] top-[41%] motion-preset-pulse-sm motion-duration-2000"
         >
           <img
             src={activitybaby}

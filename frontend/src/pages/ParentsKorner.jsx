@@ -106,11 +106,13 @@ function ParentsKorner() {
         style={{ backgroundImage: `url(${bg})` }}
       >
           <Link to="/parentalGuidance">
-  <div className="w-auto absolute z-50 left-[80%] top-[5%] hover:opacity-85 motion-preset-pulse-sm motion-duration-2000">
+  <div onMouseEnter={() => handleHover("Limit Screen Time")}
+          onMouseLeave={() => setHoveredItem()}
+          className="w-auto absolute z-50 left-[80%] top-[5%] hover:opacity-85 motion-preset-pulse-sm motion-duration-2000">
     <img
       src={timelimit}
       alt="Parental Guidance"
-      className="w-full h-full object-cover rounded-lg"
+      className="w-full h-full object-cover rounded-lg "
     />
   </div>
 </Link>
@@ -127,7 +129,7 @@ function ParentsKorner() {
           <div
             onMouseEnter={() => handleHover("Register your children")}
             onMouseLeave={() => setHoveredItem()}
-            className="absolute flex left-[42%] justify-center items-center top-[34%] h-auto w-auto cursor-pointer"
+            className="absolute flex left-[42%] justify-center items-center top-[34%] h-auto w-auto cursor-pointer transition hover:scale-105"
           >
             <img src={kidsregister} alt="Registration Button for Parents" />
             {hoveredItem === "Register your children" && (
@@ -145,7 +147,7 @@ function ParentsKorner() {
             className="absolute flex left-[59%] justify-center items-center top-[34%] h-auto w-auto cursor-pointer"
           >
             <Link to="/manageChildren">
-  <div className="flex w-auto justify-center hover:opacity-85 motion-preset-pulse-sm motion-duration-2000">
+  <div className="flex w-auto justify-center hover:opacity-85 motion-preset-pulse-sm motion-duration-2000  transition hover:scale-105">
     <img
       src={kidzmanagement}
       alt="Manage Children"
@@ -166,11 +168,11 @@ function ParentsKorner() {
           onMouseEnter={() => handleHover("Check children progress")}
           onMouseLeave={() => setHoveredItem()}
           onClick={() => openModal("Dashboard")}
-          className="absolute left-[77%] flex justify-center items-center top-[34%] h-auto w-auto cursor-pointer"
+          className="absolute left-[77%] flex justify-center items-center top-[34%] h-auto w-auto cursor-pointer transition hover:scale-105"
         >
           <img src={dashboardparentz} alt="Dashboard for Parents" />
           {hoveredItem === "Check children progress" && (
-            <div className="absolute bg-black text-white p-2 rounded mt-2">
+            <div className="absolute bg-black text-white p-2 rounded mt-2 ">
               {hoveredItem}
             </div>
           )}
@@ -180,7 +182,7 @@ function ParentsKorner() {
           onMouseEnter={() => handleHover("Play games")}
           onMouseLeave={() => setHoveredItem()}
           onClick={() => openModal("KidzKorner")}
-          className="absolute flex justify-center items-center left-[10%] top-[34%] h-auto w-auto cursor-pointer"
+          className="absolute flex justify-center items-center left-[10%] top-[34%] h-auto w-auto cursor-pointer transition hover:scale-105"
         >
           <img src={kidzkornerbutton} alt="Entire Games for Kidz" />
           {hoveredItem === "Play games" && (

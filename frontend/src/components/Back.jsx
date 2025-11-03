@@ -4,8 +4,8 @@ function Back(){
   const navigate = useNavigate()
 
   return(<>
-  <div onClick={()=>navigate(-1)} className=" w-90 h-90 left-[1%] top-[1%]  absolute z-1 hover:cursor-pointer"> 
-    <img src={backlatest} alt="Back Button" className="w-30 h -30"/>  
+  <div onClick={()=>navigate(-1)} className=" w-fit h-fit left-[1%] top-[1%]  absolute z-1 hover:cursor-pointer"> 
+    <img src={backlatest} alt="Back Button" className=" transform transition hover:scale-110  h-30"/>  
   </div>
 
   </>)  

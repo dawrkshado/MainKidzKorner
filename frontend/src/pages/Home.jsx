@@ -15,6 +15,9 @@ import Back from "../components/Back";
 
 function Home(){
    const [playClick] = useSound(clickSfx, { volume: 0.5 });
+     const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+    const childId = selectedChild?.id; // this is the child ID you need
+
 
   useEffect(() => {
     const checkUser = async () => {
@@ -52,7 +55,7 @@ function Home(){
     
     <div className="hidden w-[100vw] md:inline md:absolute h-[100%] overflow-hidden">
 
-
+       
       <div>
   
     </div>
@@ -66,7 +69,11 @@ function Home(){
 
 
       <Back/>
+     
         <img src="./Bg/kidzBackground.webp" alt="background" className="w-full"/>
+         <div className="absolute z-50 top-0 xl:top-10 xl:left-60 text-3xl">
+           Welcome! {selectedChild.child_full_name}
+         </div>
           
         <Link to="/color"onClick={playClick}><img src={redmonster} alt="Monster Button for color page" className="absolute right-[22%] bottom-[10%] h-[35%] hover:opacity-85 motion-preset-pulse-sm motion-duration-2000 "/></Link>
 
