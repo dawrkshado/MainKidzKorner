@@ -2,8 +2,9 @@ from django.contrib import admin
 from .models import *
 from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
-
+# -----------------------------
+# CustomUser
+# -----------------------------
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = ['username', 'email', 'first_name', 'last_name', 'get_role', 'is_staff', 'is_active']
@@ -21,6 +22,9 @@ class CustomUserAdmin(UserAdmin):
     get_role.short_description = 'Role'
 
 
+# -----------------------------
+# UserChild
+# -----------------------------
 class UserChildAdmin(admin.ModelAdmin):
     list_display = ['id', 'first_name', 'last_name', 'section', 'class_sched','birth_date', 'get_parent_full_name']
     list_filter = ['parent']
@@ -33,27 +37,28 @@ class UserChildAdmin(admin.ModelAdmin):
     get_parent_full_name.short_description = "Parent Full Name"
 
 
+# -----------------------------
+# Game
+# -----------------------------
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['game_name', 'difficulty', 'level']
-    list_filter = ['game_name', 'difficulty', 'level']
-    search_fields = ['game_name', 'difficulty']
+    list_display = ('game_name', 'level')  # removed 'difficulty'
+    list_filter = ('game_name', 'level')  # removed 'difficulty'
 
 
+# -----------------------------
+# TimeCompletion
+# -----------------------------
 class TimeCompletionAdmin(admin.ModelAdmin):
     model = TimeCompletion
-    list_display = ['child', 'get_game_type', 'get_difficulty', 'get_level', 'time', 'star']
-    list_filter = ['game_level__game_name', 'game_level__difficulty', 'star']
+    list_display = ['child', 'get_game_name', 'get_level', 'time', 'star']
+    list_filter = ['game_level__game_name', 'star']  # removed 'game_level__difficulty'
     search_fields = ['child__first_name', 'child__last_name']
     readonly_fields = ['star']
 
-    def get_game_type(self, obj):
-        return obj.game_level.game_name   
-    get_game_type.short_description = 'Game Type'
-    get_game_type.admin_order_field = 'game_level__game_name'  
-    def get_difficulty(self, obj):
-        return obj.game_level.difficulty
-    get_difficulty.short_description = 'Difficulty'
-    get_difficulty.admin_order_field = 'game_level__difficulty'
+    def get_game_name(self, obj):
+        return obj.game_level.game_name
+    get_game_name.short_description = 'Game Name'
+    get_game_name.admin_order_field = 'game_level__game_name'
 
     def get_level(self, obj):
         return obj.game_level.level
@@ -61,6 +66,9 @@ class TimeCompletionAdmin(admin.ModelAdmin):
     get_level.admin_order_field = 'game_level__level'
 
 
+# -----------------------------
+# Register Models
+# -----------------------------
 admin.site.register(Game, GameAdmin)
 admin.site.register(TimeCompletion, TimeCompletionAdmin)
 admin.site.register(Roles)

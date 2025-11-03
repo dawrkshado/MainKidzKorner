@@ -33,18 +33,30 @@ function AnimalLesson2() {
   ];
 
   const handleClick = (button) => {
-    setClicked(true);
-    setClickedID(button);
-    if (button === "Exercises") newQuestion();
-  };
+  setClicked(true);
+  setClickedID(button);
 
-  const handleExit = () => {
-    setClicked(false);
-    setClickedID(null);
-    setQuestion(null);
-    setFeedback("");
-  };
+  // Pause video whenever a modal opens
+  if (videoRef.current) {
+    videoRef.current.pause();
+  }
 
+  if (button === "Exercises") {
+    newQuestion();
+  }
+};
+
+
+ const handleExit = () => {
+  setClicked(false);
+  setClickedID(null);
+  setQuestion(null);
+  setFeedback("");
+
+  if (videoRef.current) {
+    videoRef.current.play();
+  }
+};
   const newQuestion = () => {
     const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
     setQuestion(randomAnimal);

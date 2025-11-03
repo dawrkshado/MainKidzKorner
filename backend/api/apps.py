@@ -1,5 +1,6 @@
 from django.apps import AppConfig
-
+from django.db.models.signals import post_migrate
+from django.contrib.auth.hashers import make_password
 
 class ApiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,28 +8,20 @@ class ApiConfig(AppConfig):
 
     def ready(self):
         """
-        Create default roles and admin user if they don't exist.
-        This is a safety net - the data migrations are the primary method.
-        Uses Django's post_migrate signal to avoid database access warnings.
+        Create default roles, admin user, and default games if they don't exist.
         """
-        from django.db.models.signals import post_migrate
-        from django.contrib.auth.hashers import make_password
-        
         def create_default_data_on_migrate(sender, app_config, **kwargs):
-            """Create default roles and admin user after migrations complete"""
-            # Only run for the api app
             if app_config.name == 'api':
-                from .models import Roles, CustomUser
-                
-                # Create default roles
+                from .models import Roles, CustomUser, Game
+
+                # --- Default roles ---
                 default_roles = ["Teacher", "Parent", "Admin"]
                 for role in default_roles:
                     Roles.objects.get_or_create(role=role)
-                
-                # Create default admin user
+
+                # --- Default admin user ---
                 admin_username = 'admin'
                 admin_role = Roles.objects.filter(role='Admin').first()
-                
                 if admin_role and not CustomUser.objects.filter(username=admin_username).exists():
                     CustomUser.objects.create(
                         username=admin_username,
@@ -41,9 +34,17 @@ class ApiConfig(AppConfig):
                         is_superuser=True,
                         is_active=True
                     )
-        
-        # Connect to post_migrate signal
+
+                # --- Default games ---
+                GAME_CHOICES = [
+                    'Lesson1 Activity1', 'Lesson1 Activity2',
+                    'Lesson2 Activity1', 'Lesson2 Activity2',
+                    'Lesson3 Activity1', 'Lesson3 Activity2',
+                    'Lesson4 Activity1', 'Lesson4 Activity2',
+                    'Lesson5 Activity1', 'Lesson5 Activity2',
+                ]
+                for game_name in GAME_CHOICES:
+                    Game.objects.get_or_create(game_name=game_name)
+
+        # Connect signal
         post_migrate.connect(create_default_data_on_migrate)
-
-
-    

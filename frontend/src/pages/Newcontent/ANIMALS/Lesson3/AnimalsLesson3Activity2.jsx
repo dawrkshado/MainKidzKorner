@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import KittenDialogue from "../../../../assets/Animals/Lesson3/KittenDialogue.webp";
 import PuppyDialogue from "../../../../assets/Animals/Lesson3/PuppyDialogue.webp";
 import ChickDialogue from "../../../../assets/Animals/Lesson3/ChickDialogue.webp";
+import api from "../../../../api";
 
 // ✅ Baby animal sounds
 import babydog from "../../../../assets/Animals/ExerciseSound/babydog.mp3";
@@ -69,6 +70,9 @@ function AnimalsLessonActivity2() {
   const [dropped, setDropped] = useState({});
   const [currentRound, setCurrentRound] = useState(1);
   const [count, setCount] = useState(1);
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
+
 
   // ✅ One ref for all baby sounds
   const babySoundRef = useRef(null);
@@ -165,6 +169,31 @@ function AnimalsLessonActivity2() {
     stopApplause();
     navigate("/shapes");
   };
+
+  useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson3 Activity2",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
+
 
   return (
     <>

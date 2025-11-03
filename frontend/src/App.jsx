@@ -355,6 +355,7 @@ function App() {
               <Route path="/color/hard" element={<ColorHard/>}/>
               <Route path="/color/hard/level1" element={<ColorGameHardLevel1/>}/>
           </>}
+
           {role == "Admin" && <>
               <Route path="/admin" element={<Admin/>}/>
               <Route path="/manageaccounts" element={<ManageAcc/>}/>
@@ -363,8 +364,6 @@ function App() {
           
         
         <Route path="*" element={<NotFound />} />
-
-
       </Routes>
       <UnlockOverlay />
        <LockOverlay />

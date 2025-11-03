@@ -60,41 +60,30 @@ class UserChild(models.Model):
         return f"{self.first_name} {self.last_name} "
     
 class Game(models.Model):
-    game_Choices = [
-        ('Shape', 'Shape'),
-        ('Number', 'Number'),
-        ('Alphabet', 'Alphabet'),
-        ('Color', 'Color'),
+    # Chronological activities
+    GAME_CHOICES = [
+        ('Lesson1 Activity1', 'Lesson1 Activity1'),
+        ('Lesson1 Activity2', 'Lesson1 Activity2'),
+        ('Lesson2 Activity1', 'Lesson2 Activity1'),
+        ('Lesson2 Activity2', 'Lesson2 Activity2'),
+        ('Lesson3 Activity1', 'Lesson3 Activity1'),
+        ('Lesson3 Activity2', 'Lesson3 Activity2'),
+        ('Lesson4 Activity1', 'Lesson4 Activity1'),
+        ('Lesson4 Activity2', 'Lesson4 Activity2'),
+        ('Lesson5 Activity1', 'Lesson5 Activity1'),
+        ('Lesson5 Activity2', 'Lesson5 Activity2'),
     ]
 
-    difficulty_Choices = [
-        ('Easy', 'Easy'),
-        ('Medium', 'Medium'),
-        ('Hard', 'Hard'),
-    ]
-
-
-    game_name = models.CharField( choices=game_Choices, max_length=20)
-    difficulty = models.CharField(max_length=10, choices=difficulty_Choices, default='Easy')
+    game_name = models.CharField(choices=GAME_CHOICES, max_length=30, unique=True)
     level = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(10)])
-    
 
-    three_star_time = models.IntegerField(
-        default=20, 
-        help_text="Maximum time in seconds to get 3 stars"
-    )
-    two_star_time = models.IntegerField(
-        default=30, 
-        help_text="Maximum time in seconds to get 2 stars"
-    )
-    one_star_time = models.IntegerField(
-        default=45, 
-        help_text="Maximum time in seconds to get 1 star"
-    )
+    # Star thresholds in seconds
+    three_star_time = models.IntegerField(default=20, help_text="Max time for 3 stars")
+    two_star_time = models.IntegerField(default=30, help_text="Max time for 2 stars")
+    one_star_time = models.IntegerField(default=45, help_text="Max time for 1 star")
 
     def __str__(self):
-        return f"{self.game_name} - {self.difficulty} - Level {self.level}"
-
+        return f"{self.game_name} - Level {self.level}"
 
 
 class TimeCompletion(models.Model):
@@ -105,32 +94,30 @@ class TimeCompletion(models.Model):
         (3, '3 Stars'),
     ]
 
-    child = models.ForeignKey(UserChild, on_delete=models.CASCADE, related_name='child_name', default=1)
+    child = models.ForeignKey(UserChild, on_delete=models.CASCADE, related_name='time_records')
     game_level = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='time_completions')
-    time = models.IntegerField(default=0)
-    star = models.IntegerField(default=0, choices=STAR_CHOICES, validators=[MinValueValidator(0), MaxValueValidator(3)])
+    time = models.IntegerField(default=0)  # total seconds
+    star = models.IntegerField(default=0, choices=STAR_CHOICES)
 
     def calculate_stars(self):
-        """Calculate stars based on the time and game_level thresholds."""
-        if not self.game_level:
-            return 0  # safety check if game_level is missing
-
+        """Calculate stars based on the time thresholds of the game."""
         if self.time <= self.game_level.three_star_time:
             return 3
-        elif self.time <=  self.game_level.two_star_time and self.time > self.game_level.three_star_time:
+        elif self.time <= self.game_level.two_star_time:
             return 2
-        elif self.time > self.game_level.one_star_time:
+        elif self.time <= self.game_level.one_star_time:
             return 1
         else:
             return 0
 
     def save(self, *args, **kwargs):
-        # Auto-calculate stars before saving
+        # Auto calculate stars before saving
         self.star = self.calculate_stars()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.game_level.game_name} - {self.game_level.difficulty} - Level {self.game_level.level}: {self.time}s, {self.star} star(s)'
+        return f'{self.child.first_name} - {self.game_level.game_name} ({self.time}s, {self.star}⭐)'
+
         
 
 class UploadedFile(models.Model):

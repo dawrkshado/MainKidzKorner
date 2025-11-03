@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import applause from "../../../../assets/Sounds/applause.wav";
 import { useWithSound } from "../../../../components/useWithSound";
 import { useNavigate } from "react-router-dom";
+import api from "../../../../api";
 
 // Activate tutorial video import
 import TutorialVideo from "../../../../assets/videos/Pet or Wild act1 Tutorial.mp4";
@@ -76,6 +77,8 @@ function AnimalsLesson5Activity1() {
   const [dropped, setDropped] = useState([]);
   const [count, setCount] = useState(0);
   const [showTutorial, setShowTutorial] = useState(true); // ← tutorial state added
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
 
   const animalTypes = {
     dog: "pet",
@@ -149,6 +152,29 @@ function AnimalsLesson5Activity1() {
     stopApplause();
     navigate("/shapes");
   };
+    useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson4 Activity2",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
 
   return (
     <>

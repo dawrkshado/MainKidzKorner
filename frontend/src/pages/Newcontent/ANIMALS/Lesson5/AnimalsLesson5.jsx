@@ -23,16 +23,26 @@ function AnimalLesson5() {
   const navigate = useNavigate();
   const videoRef = useRef(null);
 
-  const handleClick = (button) => {
+ const handleClick = (button) => {
+    setZone(null)
     setClicked(true);
     setClickedID(button);
-    setZone(null);
+
+    // Pause main video when opening popup
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
   };
 
   const handleExit = () => {
     setClicked(false);
     setClickedID(null);
-    setZone(null);
+    setZone(null)
+
+    // Resume main video when closing popup
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
   };
 
   return (

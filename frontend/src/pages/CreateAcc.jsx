@@ -75,7 +75,8 @@ function CreateAcc() {
               value={firstName}
               onChange={(e) => {
                 const value = e.target.value;
-                const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
+                const onlyLetters = value.replace(/[^a-zA-Z\s]/g, "");
+                const capitalized = onlyLetters.charAt(0).toUpperCase() + onlyLetters.slice(1);
                 setFirstName(capitalized);
               }}
               className="w-full p-2 rounded-md border capitalize"
@@ -90,7 +91,8 @@ function CreateAcc() {
               value={lastName}
               onChange={(e) => {
                 const value = e.target.value;
-                const capitalized = value.charAt(0).toUpperCase() + value.slice(1);
+                const onlyLetters = value.replace(/[^a-zA-Z\s]/g, "");
+                const capitalized = onlyLetters.charAt(0).toUpperCase() + onlyLetters.slice(1);
                 setLastName(capitalized);
               }}
               className="w-full p-2 rounded-md border capitalize"

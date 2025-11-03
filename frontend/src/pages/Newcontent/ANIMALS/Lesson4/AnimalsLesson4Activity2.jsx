@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DndContext, useDraggable, useDroppable, pointerWithin } from "@dnd-kit/core";
+import api from "../../../../api";
 
 import BG from "../../../../assets/Animals/Lesson4/bg2.webp";
 import Armadilo from "../../../../assets/Animals/Lesson4/Armadilo.webp";
@@ -95,6 +96,8 @@ function AnimalsLesson4Activity2() {
   const [dropped, setDropped] = useState([]);
   const [count, setCount] = useState(0);
   const [showTutorial, setShowTutorial] = useState(true);  // new state for tutorial
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
 
   const animalHabitats = {
     armadilo: "desert",
@@ -189,6 +192,30 @@ function AnimalsLesson4Activity2() {
     stopApplause();
     navigate("/shapes");
   };
+
+    useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson4 Activity2",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
 
   return (
     <>

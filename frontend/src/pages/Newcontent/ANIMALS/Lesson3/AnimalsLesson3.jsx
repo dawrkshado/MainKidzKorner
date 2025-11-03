@@ -32,16 +32,26 @@ function AnimalLesson3() {
   const navigate = useNavigate();
 
   const handleClick = (button) => {
+
     setClicked(true);
     setClickedID(button);
+
+    // Pause main video when opening popup
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
   };
 
   const handleExit = () => {
     setClicked(false);
     setClickedID(null);
-    setRevealedBabies({});
-  };
 
+    // Resume main video when closing popup
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
+  
   const handleParentClick = (animalName) => {
     setRevealedBabies((prev) => ({
       ...prev,

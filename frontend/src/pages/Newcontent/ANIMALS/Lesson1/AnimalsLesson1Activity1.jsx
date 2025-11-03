@@ -33,7 +33,7 @@ import cowSound from "../../../../assets/Animals/Lesson2/cowSound.mp3";
 import dogSound from "../../../../assets/Animals/Lesson2/dogSound.mp3";  // adjusted path
 import pigSound from "../../../../assets/Sounds/pigoink.mp3";             // keep correct path
 import duckSound from "../../../../assets/Animals/Lesson2/duckSound.mp3";
-
+import api from "../../../../api";
 
 
 import SoundTutorial from "../../../../assets/videos/SoundTutorial1.mp4";  // ← your tutorial video path
@@ -72,10 +72,17 @@ function Draggable({ id, disabled = false, shape }) {
 
 
 function AnimalsLessonActivity1() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
   const { playSound: playApplause, stopSound: stopApplause } = useWithSound(applause);
   const [dropped, setDropped] = useState({});
   const [count, setCount] = useState(0);
+  
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
+
+
+
+
 
   // Tutorial state
   const [showTutorial, setShowTutorial] = useState(true);
@@ -175,6 +182,31 @@ useEffect(() => {
     stopApplause();
     navigate("/shapes");
   };
+
+  useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson1 Activity1",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
+
 
   return (
     <>

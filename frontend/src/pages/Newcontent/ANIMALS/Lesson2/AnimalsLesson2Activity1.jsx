@@ -28,6 +28,8 @@ import applause from "../../../../assets/Sounds/applause.wav";
 import { useWithSound } from "../../../../components/useWithSound";
 import { useNavigate } from "react-router-dom";
 
+import api from "../../../../api";
+
 function Droppable({ id, placedShape, shape }) {
   const { isOver, setNodeRef } = useDroppable({ id });
   const style = {
@@ -80,6 +82,9 @@ function saveProgress(level) {
 }
 
 function AnimalsLesson2Activity1() {
+    const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
+
   const navigate = useNavigate();
   const { playSound: playApplause, stopSound: stopApplause } =
     useWithSound(applause);
@@ -177,6 +182,30 @@ function AnimalsLesson2Activity1() {
       }
     }
   }
+
+    useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson2 Activity1",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
 
   return (
     <>

@@ -28,6 +28,8 @@ import applause from "../../../../assets/Sounds/applause.wav";
 
 import SoundTutorial from "../../../../assets/videos/SoundTutorial2.mp4"; 
 
+import api from "../../../../api";
+
 // Define rounds
 const ROUNDS = [
   { shadow: DuckShadow, answer: "Duck", choices: ["Duck", "Dog", "Pig", "Cat"] },
@@ -42,6 +44,10 @@ function AnimalsLesson1Activity2() {
   const [playClick] = useSound(clickSfx, { volume: 0.5 });
   const navigate = useNavigate();
   const { playSound: playApplause, stopSound: stopApplause } = useWithSound(applause);
+
+    const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
+
 
   // 🔊 add animal sounds
   const [playCat] = useSound(catSound, { volume: 0.7 });
@@ -102,6 +108,31 @@ function AnimalsLesson1Activity2() {
       localStorage.setItem("lesson1Activity2Done", "true");
     }
   }, [isGameFinished]);
+
+    useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson1 Activity2",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
+
 
   return (<>
 

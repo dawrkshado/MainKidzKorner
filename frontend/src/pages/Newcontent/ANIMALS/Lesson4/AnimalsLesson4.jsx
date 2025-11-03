@@ -37,11 +37,15 @@ function AnimalLesson4() {
     setClickedID(buttonId);
   }
 
-  function handleExit() {
-    stopVideo(); // stop video on popup close
+   const handleExit = () => {
     setClicked(false);
     setClickedID(null);
-  }
+
+    // Resume main video when closing popup
+    if (videoRef.current) {
+      videoRef.current.play();
+    }
+  };
 
   function getBackgroundForId(id) {
     if (id === "lion") return savannabg;

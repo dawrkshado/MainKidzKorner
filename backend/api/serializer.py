@@ -33,18 +33,17 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class Game(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['game_name','difficulty','level']
+        fields = ['game_name','level']
 
 class gameSerializer(serializers.ModelSerializer):
     child = UserChildSerializer(read_only=True)
     game_level = Game(read_only=True)
 
-    difficulty = serializers.CharField(source='game.difficulty', read_only=True)
     game_type = serializers.CharField(source='game_level.game', read_only=True)
 
     class Meta:
         model = TimeCompletion
-        fields = ['child','game_type', 'difficulty','game_level','time', 'star']
+        fields = ['child','game_type','game_level','time', 'star']
 
 
 

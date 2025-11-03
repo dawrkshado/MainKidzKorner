@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import applause from "../../../../assets/Sounds/applause.wav";
 import { useWithSound } from "../../../../components/useWithSound";
 import { useNavigate } from "react-router-dom";
+import api from "../../../../api";
 
 import SoundTutorial4 from "../../../../assets/videos/LiveTutorial1.mp4";  // ← tutorial video file path
 
@@ -75,6 +76,8 @@ function AnimalsLesson4Activity1() {
   const [dropped, setDropped] = useState([]);
   const [count, setCount] = useState(1);
   const [showTutorial, setShowTutorial] = useState(true);  // ← tutorial overlay state
+  const selectedChild = JSON.parse(localStorage.getItem("selectedChild"));
+  const childId = selectedChild?.id; // this is the child ID you need
 
   const acceptedAnimals = ["monkey", "giraffe", "lion"];
 
@@ -157,6 +160,30 @@ function AnimalsLesson4Activity1() {
     stopApplause();
     navigate("/shapes");
   };
+
+   useEffect(() => {
+  if (isGameFinished && childId) {
+    const saveRecord = async () => {
+      const payload = {
+        child_id: childId,
+        game: "Lesson4 Activity1",
+        level: 1,
+        time: count
+      };
+
+      console.log("📤 Sending progress data:", payload); // ✅ Check this in console
+
+      try {
+        const response = await api.post("/api/save_progress/", payload);
+        console.log("✅ Game progress saved successfully:", response.data);
+      } catch (err) {
+        console.error("❌ Error saving progress:", err.response?.data || err.message);
+      }
+    };
+
+    saveRecord();
+  }
+}, [isGameFinished, childId, count]);
 
   return (
     <>
